@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cleo Cosmetics Game</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #f9f9f9;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .game-container {
+            position: relative;
+            width: 80%;
+            height: 80%;
+            border: 2px solid #ccc;
+            overflow: hidden;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            transition: background-color 0.3s ease-in-out;
+        }
+
+        .cleo-package {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .cleo-package:hover {
+            transform: scale(1.1);
+        }
+
+        .message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2rem;
+            color: #333;
+            text-align: center;
+            display: none;
+        }
+
+        .score {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 1.5rem;
+            color: #333;
+        }
+
+        .timer {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 1.5rem;
+            color: #333;
+        }
+
+        .final-message {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #ff5722;
+        }
+
+        .discount-banner {
+            margin-top: 10px;
+            font-size: 1.5rem;
+            background-color: #ffd54f;
+            color: #333;
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container" id="game-container">
+        <img src="Cleo.PNG" alt="Cleo Package" class="cleo-package" id="cleo">
+        <div class="message" id="message">
+            <span class="final-message"></span>
+            <div class="discount-banner"></div>
+        </div>
+        <div class="score" id="score">Score: 0</div>
+        <div class="timer" id="timer">Time: 15s</div>
+    </div>
+
+    <script>
+        const cleo = document.getElementById('cleo');
+        const message = document.getElementById('message');
+        const container = document.getElementById('game-container');
+        const scoreDisplay = document.getElementById('score');
+        const timerDisplay = document.getElementById('timer');
+        const finalMessage = document.querySelector('.final-message');
+        const discountBanner = document.querySelector('.discount-banner');
+
+        let score = 0;
+        let timeLeft = 15;
+        let gameOver = false;
+
+        // Generate a discount based on the score
+        function generateDiscount(score) {
+            if (score <= 5) {
+                return Math.floor(Math.random() * 30) + 1; // 1% to 30% for score 1-5
+            } else if (score <= 10) {
+                return Math.floor(Math.random() * 20) + 31; // 31% to 50% for score 6-10
+            } else if (score <= 20) {
+                return Math.floor(Math.random() * 30) + 51; // 51% to 80% for score 11-20
+            } else {
+                return Math.floor(Math.random() * 20) + 81; // 81% to 100% for score >20
+            }
+        }
+
+        // Change the background color of the container
+        function changeBackground() {
+            const colors = ['#f8bbd0', '#c8e6c9', '#bbdefb', '#ffe0b2', '#d1c4e9'];
+            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+            container.style.backgroundColor = randomColor;
+        }
+
+        // Randomly position the Cleo package
+        function moveCleo() {
+            if (gameOver) return;
+            const x = Math.random() * (container.clientWidth - cleo.offsetWidth);
+            const y = Math.random() * (container.clientHeight - cleo.offsetHeight);
+            cleo.style.left = `${x}px`;
+            cleo.style.top = `${y}px`;
+            changeBackground();
+        }
+
+        // Start moving the Cleo package
+        const moveInterval = setInterval(moveCleo, 500);
+
+        // Handle click event
+        cleo.addEventListener('click', () => {
+            if (gameOver) return;
+            score++;
+            scoreDisplay.textContent = `Score: ${score}`;
+            const discount = generateDiscount(score); // Generate discount based on score
+            discountBanner.textContent = `You won ${discount}% off!`; // Update the banner
+        });
+
+        // Countdown timer
+        const timerInterval = setInterval(() => {
+            if (gameOver) return;
+            timeLeft--;
+            timerDisplay.textContent = `Time: ${timeLeft}s`;
+
+            if (timeLeft === 0) {
+                gameOver = true;
+                clearInterval(moveInterval);
+                clearInterval(timerInterval);
+                cleo.style.display = 'none'; // Hide the Cleo package
+                message.style.display = 'block'; // Show final message
+                finalMessage.textContent = `Game Over! Final Score: ${score}`;
+            }
+        }, 1000);
+
+        // Initialize position
+        moveCleo();
+    </script>
+</body>
+</html>
